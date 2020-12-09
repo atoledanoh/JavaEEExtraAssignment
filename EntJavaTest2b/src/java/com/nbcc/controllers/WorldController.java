@@ -5,10 +5,9 @@
  */
 package com.nbcc.controllers;
 
-import com.nbcc.factories.DistrictFactory;
-import com.nbcc.models.District;
-import com.nbcc.models.DistrictValidationException;
-import com.nbcc.models.ViewModel;
+import com.nbcc.dataccess.DistrictFactory;
+import com.nbcc.dataccess.DistrictRepo;
+import com.nbcc.models.*;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -16,18 +15,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /**
  *
- * @author Alejandro Toledano 
+ * @author Alejandro Toledano
  */
 public class WorldController extends HttpServlet {
 
-    private District district;
+    private DistrictRepo districtRepo;
 
     @Override
     public void init() throws ServletException {
-        District district = (District) DistrictFactory.createDistrictRepo();
+        this.districtRepo = DistrictFactory.createDistrictRepo();
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -47,13 +45,13 @@ public class WorldController extends HttpServlet {
         ViewModel viewModel = new ViewModel();
         request.setAttribute("ViewModel", viewModel);
 
-        List<District> districts;
-        
-//        try {
-//            districts = DistrictFactory.createDistrictRepo();
-//        } catch (Exception e) {
-//        }
+        //Insert Code here
+        getCountryList(viewModel);
 
+        try {
+            getCountryList(viewModel);
+        } catch (Exception e) {
+        }
         getServletContext().getRequestDispatcher(view).forward(request, response);
     }
 
@@ -74,10 +72,33 @@ public class WorldController extends HttpServlet {
         request.setAttribute("ViewModel", viewModel);
 
         // insert Code here
+        District district = buildDistrict(request);
+
+        //If the district object has an empty name, throw an “DistrictValidationException”
+        //and set the message in the exception to indicate that the name cannot be empty
+        try {
+            validate(district);
+
+            view = "/districtCreated.jsp";
+            viewModel.setDistrict(district);
+        } catch (DistrictValidationException e) {
+            viewModel.addError(e.getMessage());
+
+            // reload coountry list
+            getCountryList(viewModel);
+
+            view = "/index.jsp";
+        }
+
         getServletContext().getRequestDispatcher(view).forward(request, response);
     }
 
     protected District buildDistrict(HttpServletRequest request) {
+        District district = new District();
+
+        district.setName(request.getParameter("txtDistrictName"));
+        district.setCountryCode(request.getParameter("ddlCountry"));
+
         return district;
     }
 
@@ -85,8 +106,8 @@ public class WorldController extends HttpServlet {
 
         if (district.getName().equals("")) {
             throw new DistrictValidationException("District name cannot be empty");
-
         }
+
         if (district.getName().length() > 45) {
             throw new DistrictValidationException("District name can't exceed 45 characters.");
         }
@@ -94,5 +115,17 @@ public class WorldController extends HttpServlet {
             throw new DistrictValidationException("Country code cannot be empty");
         }
 
+    }
+
+    //added method to get the county list
+    private void getCountryList(ViewModel viewModel) {
+        List<Country> countriesList;
+
+        try {
+            countriesList = districtRepo.getCountryList();
+            viewModel.setCountries(countriesList);
+        } catch (FailedToRetrieveException e) {
+            viewModel.addError(e.getMessage());
+        }
     }
 }

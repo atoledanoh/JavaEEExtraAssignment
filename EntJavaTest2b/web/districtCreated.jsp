@@ -8,7 +8,11 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
-    ViewModel viewModel = null;
+    ViewModel viewModel = (ViewModel)request.getAttribute("ViewModel");
+
+    if (viewModel == null) {
+        response.sendRedirect("/EntJavaTest2b/home");
+    }
 %>
 <html>
     <head>
@@ -18,7 +22,7 @@
     </head>
     <body class="m-5">
         <h1>District Created</h1>
-        <p>Id: <%= viewModel.getDistrict().getId() %> </p>
+        <p>Id: <%= viewModel.getDistrict().getId()%> </p>
         <p>Name: <%= viewModel.getDistrict().getName()%> </p>
         <p>Country Code: <%= viewModel.getDistrict().getCountryCode()%> </p>
         <a href="home" class="btn btn-primary">Create another district</a>

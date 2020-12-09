@@ -3,14 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.nbcc.factories;
-
-import com.nbcc.dataccess.DistrictRepo;
-import com.nbcc.dataccess.MySqlDistricts;
+package com.nbcc.dataccess;
 
 /**
  *
- * @author Alejandro Toledano 
+ * @author Alejandro Toledano
  */
 public class DistrictFactory {
 

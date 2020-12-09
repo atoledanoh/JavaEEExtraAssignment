@@ -10,7 +10,11 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <%
-    ViewModel viewModel = ViewModel.getDistricts();
+    ViewModel viewModel = (ViewModel)request.getAttribute("ViewModel");
+
+    if (viewModel == null) {
+        response.sendRedirect("/EntJavaTest2b/home");
+    }
 %>
 <html>
     <head>
@@ -46,8 +50,8 @@
         <c:if test="<%= viewModel.showErrors()%>">
             <ul class="alert alert-danger" role="alert">
                 <% for (String err : viewModel.getErrors()) {%>
-                    <li> <%= err %></li>
-                <% }%>
+                <li> <%= err%></li>
+                    <% }%>
             </ul>
         </c:if> 
     </body>
